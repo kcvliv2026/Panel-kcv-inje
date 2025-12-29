@@ -21,6 +21,8 @@
       display: flex;
       gap: 10px;
       align-items: center;
+      flex-wrap: wrap;
+      justify-content: center;
     }
     .zoom-btn {
       background: #0066ff;
@@ -30,10 +32,13 @@
       border-radius: 3px;
       font-size: 14px;
       cursor: pointer;
+      transition: background 0.2s;
     }
+    .zoom-btn:hover { background: #0052cc; }
     .zoom-label {
       font-size: 14px;
       color: #ccc;
+      margin: 0 10px;
     }
     .zoom-label span {
       color: #00cc66;
@@ -48,6 +53,8 @@
       justify-content: space-between;
       align-items: center;
       border-bottom: 1px solid #00cc66;
+      flex-wrap: wrap;
+      gap: 10px;
     }
     .panel-title {
       font-size: 20px;
@@ -74,7 +81,9 @@
       border-radius: 3px;
       font-size: 14px;
       cursor: pointer;
+      transition: background 0.2s;
     }
+    .logout-btn:hover { background: #cc2929; }
     .timer {
       font-size: 12px;
       color: #ff3333;
@@ -99,6 +108,10 @@
       border-radius: 3px;
       font-size: 14px;
       outline: none;
+      transition: border 0.2s;
+    }
+    .control-bar select:focus, .control-bar input:focus {
+      border-color: #0099ff;
     }
     .device-slot-input {
       width: 120px;
@@ -111,7 +124,9 @@
       border-radius: 3px;
       font-size: 14px;
       cursor: pointer;
+      transition: background 0.2s;
     }
+    .generate-key-btn:hover { background: #0052cc; }
     .main-btn {
       background: #00cc66;
       color: #000;
@@ -122,12 +137,15 @@
       font-weight: bold;
       cursor: pointer;
       margin-right: 5px;
+      transition: background 0.2s;
     }
+    .main-btn:hover { background: #00b359; }
     .delete-section {
       margin-left: auto;
       display: flex;
       gap: 8px;
       align-items: center;
+      flex-wrap: wrap;
     }
     .confirm-btn {
       background: #ff3333;
@@ -137,7 +155,9 @@
       border-radius: 3px;
       font-size: 14px;
       cursor: pointer;
+      transition: background 0.2s;
     }
+    .confirm-btn:hover { background: #cc2929; }
 
     /* RESELLER SECTION */
     .resellers-section {
@@ -151,6 +171,19 @@
       color: #00cc66;
       margin-bottom: 10px;
       font-size: 18px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .add-reseller-btn {
+      background: #0066ff;
+      color: #fff;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 3px;
+      font-size: 12px;
+      cursor: pointer;
+      margin-left: auto;
     }
     .resellers-table {
       width: 100%;
@@ -165,6 +198,9 @@
     .resellers-table th {
       background: #2a2a2a;
       color: #00cc66;
+    }
+    .resellers-table tr:hover {
+      background: #2a2a2a;
     }
     .location-tag {
       color: #0099ff;
@@ -195,8 +231,15 @@
       color: #00cc66;
       font-weight: bold;
     }
+    .keys-table tr:hover {
+      background: #2a2a2a;
+    }
     .active-status {
       color: #00cc66;
+      font-weight: bold;
+    }
+    .blocked-status {
+      color: #ff3333;
       font-weight: bold;
     }
     .control-action-btn {
@@ -207,7 +250,14 @@
       border-radius: 3px;
       font-size: 12px;
       cursor: pointer;
+      margin-right: 5px;
+      transition: background 0.2s;
     }
+    .control-action-btn:hover { background: #0052cc; }
+    .block-btn {
+      background: #ff3333;
+    }
+    .block-btn:hover { background: #cc2929; }
 
     /* ALERT */
     .alert {
@@ -221,6 +271,11 @@
       font-weight: bold;
       display: none;
       z-index: 200;
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; top: 0; }
+      to { opacity: 1; top: 20px; }
     }
     .alert-success {
       background: #004422;
@@ -232,9 +287,101 @@
       color: #ff3333;
       border: 1px solid #ff3333;
     }
+
+    /* MODAL */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      z-index: 300;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-content {
+      background: #1e1e1e;
+      padding: 25px;
+      border-radius: 5px;
+      border: 1px solid #00cc66;
+      width: 100%;
+      max-width: 400px;
+    }
+    .modal-content h3 {
+      color: #00cc66;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+    .modal-input-group {
+      margin: 10px 0;
+    }
+    .modal-input-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 14px;
+      color: #ccc;
+    }
+    .modal-input-group input {
+      width: 100%;
+      background: #2a2a2a;
+      color: #fff;
+      border: 1px solid #00cc66;
+      padding: 6px 8px;
+      border-radius: 3px;
+      font-size: 14px;
+    }
+    .modal-buttons {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 20px;
+    }
+
+    /* FOOTER */
+    .footer {
+      background: #1e1e1e;
+      padding: 10px;
+      border-top: 1px solid #00cc66;
+      text-align: center;
+      font-size: 14px;
+      color: #ccc;
+    }
+    .footer span {
+      color: #00cc66;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body id="panel-body">
+  <!-- ALERT BOXES -->
+  <div class="alert alert-success" id="successAlert">Operation Successful!</div>
+  <div class="alert alert-error" id="errorAlert">Operation Failed! Check Details.</div>
+
+  <!-- ADD RESELLER MODAL -->
+  <div class="modal" id="resellerModal">
+    <div class="modal-content">
+      <h3>Add New Reseller</h3>
+      <div class="modal-input-group">
+        <label>Username:</label>
+        <input type="text" id="reseller-username" placeholder="Enter username" required>
+      </div>
+      <div class="modal-input-group">
+        <label>Reseller Points:</label>
+        <input type="number" id="reseller-points" min="0" value="100" required>
+      </div>
+      <div class="modal-input-group">
+        <label>Location:</label>
+        <input type="text" id="reseller-location" placeholder="Enter location" required>
+      </div>
+      <div class="modal-buttons">
+        <button class="confirm-btn" onclick="closeModal()">Cancel</button>
+        <button class="main-btn" onclick="saveReseller()">Save Reseller</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ZOOM CONTROLS -->
   <div class="zoom-controls">
     <button class="zoom-btn" onclick="adjustZoom(-0.1)">🔍 Zoom Out (-)</button>
@@ -262,50 +409,14 @@
       <option value="Free">Free</option>
     </select>
     <select id="duration">
-      <option value="1 Day">1 Day (6 saldo)</option>
-      <option value="7 Days">7 Days (30 saldo)</option>
-      <option value="Lifetime">Lifetime (100 saldo)</option>
-      <option value="2 Days">2 Days (5 saldo)</option>
+      <option value="1 Day" data-cost="6">1 Day (6 saldo)</option>
+      <option value="7 Days" data-cost="30">7 Days (30 saldo)</option>
+      <option value="Lifetime" data-cost="100">Lifetime (100 saldo)</option>
+      <option value="2 Days" data-cost="5">2 Days (5 saldo)</option>
     </select>
     <input type="number" id="device-slot" class="device-slot-input" placeholder="Device Slot" min="1" max="9999999" value="1" required>
     <button class="generate-key-btn" onclick="generateKey()">Generate Key</button>
 
     <button class="main-btn" onclick="toggleMaintenance()">Maintenance Mode</button>
     <button class="main-btn" onclick="getKeyLogs()">Get Key Logs</button>
-    <button class="main-btn" onclick="openWebsiteControl()">Control Website</button>
-
-    <div class="delete-section">
-      <select id="delete-key-select">
-        <option value="">Select Key to Delete</option>
-      </select>
-      <button class="confirm-btn" onclick="deleteKey()">Confirm</button>
-    </div>
-  </div>
-
-  <!-- RESELLER LOCATION SECTION -->
-  <div class="resellers-section">
-    <h2>🔍 Reseller Locations & Details</h2>
-    <table class="resellers-table">
-      <thead>
-        <tr>
-          <th>Reseller ID</th>
-          <th>Username</th>
-          <th>Reseller Points</th>
-          <th>Location</th>
-          <th>Date Created</th>
-        </tr>
-      </thead>
-      <tbody id="resellers-table-body">
-        <tr>
-          <td colspan="5" style="text-align:center; color:#ccc;">Loading resellers...</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <!-- KEYS TABLE -->
-  <div class="keys-table-container">
-    <table class="keys-table">
-      <thead>
-        <tr>
-          
+   
