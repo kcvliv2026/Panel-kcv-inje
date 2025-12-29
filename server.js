@@ -8,61 +8,35 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const JWT_SECRET = "KCV_SECRET_KEY_2025";
 let maintenanceMode = false;
-let panelPoints = 99989; // Default points (tulad ng larawan)
+let panelPoints = 99989;
 
 // ==== USERS WITH ROLES ====
 const users = [
   {
     id: 1,
-    username: "e",
+    username: "kcv_admin",
     password: bcrypt.hashSync("kcv_panel_2025", 10),
-    accessKey: "e",
     role: "admin"
   },
   {
     id: 2,
     username: "test_mod",
     password: bcrypt.hashSync("mod_123", 10),
-    accessKey: "KCV_MOD_ACCESS_456",
     role: "moderator"
-  }
-];
-
-// ==== RESELLERS LIST ====
-const resellers = [
-  { id: 1, username: "reseller_01", points: 500, status: "active" }
-];
-
-// ==== GENERATED KEYS LIST ====
-const generatedKeys = [
-  {
-    id: 1,
-    key: "KCV-FREE-2DAYS-91XX",
-    status: "active",
-    type: "Free",
-    expiry: "2 Days",
-    user: "9/1",
-    devices: 1
-  },
-  {
-    id: 2,
-    key: "KCV-VIP-LIFETIME-123",
-    status: "active",
-    type: "VIP",
-    expiry: "Lifetime",
-    user: "1/23",
-    devices: 1
   },
   {
     id: 3,
-    key: "KCV-VIP-LIFETIME-456",
-    status: "active",
-    type: "VIP",
-    expiry: "Lifetime",
-    user: "1/1",
-    devices: 1
+    username: "reseller_01",
+    password: bcrypt.hashSync("reseller_123", 10),
+    role: "reseller",
+    resellerPoints: 500,
+    resellerKeys: []
   }
 ];
+
+// ==== KEY LISTS - WALANG PRE-SET KEYS! ====
+const globalKeys = []; // Admin/Moderator Keys
+const resellerKeys = []; // Reseller Keys
 
 // Basic Setup
 app.use(cors());
@@ -75,28 +49,27 @@ function checkRole(req, allowedRoles) {
     const token = req.headers.authorization.split(" ")[1];
     const decoded = jwt.verify(token, JWT_SECRET);
     const user = users.find(u => u.id === decoded.userId);
-    return allowedRoles.includes(user.role);
+    return { allowed: allowedRoles.includes(user.role), user: user };
   } catch (err) {
-    return false;
+    return { allowed: false, user: null };
   }
 }
 
 // ==== API ROUTES ====
 // 1. Login Route
 app.post("/api/login", (req, res) => {
-  if (maintenanceMode) {
+  if (maintenanceMode && req.body.username !== "kcv_admin") {
     return res.status(503).json({ success: false, message: "Panel under maintenance!" });
   }
 
-  const { username, accessKey, password } = req.body;
+  const { username, password } = req.body;
   const user = users.find(u => u.username === username);
 
   if (!user) return res.status(401).json({ success: false, message: "Invalid username!" });
   const validPass = bcrypt.compareSync(password, user.password);
-  const validKey = user.accessKey === accessKey;
 
-  if (!validPass || !validKey) {
-    return res.status(401).json({ success: false, message: "Wrong password/access key!" });
+  if (!validPass) {
+    return res.status(401).json({ success: false, message: "Wrong password!" });
   }
 
   const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: "1h" });
@@ -105,86 +78,138 @@ app.post("/api/login", (req, res) => {
     token, 
     username: user.username, 
     role: user.role,
-    points: panelPoints 
+    points: user.role === "reseller" ? user.resellerPoints : panelPoints
   });
 });
 
-// 2. Get Panel Data (Keys, Points, Maintenance Status)
+// 2. Get Panel Data (Match EREN UI Structure)
 app.get("/api/panel-data", (req, res) => {
-  if (!checkRole(req, ["admin", "moderator"])) {
-    return res.status(403).json({ success: false, message: "No permission!" });
+  const auth = checkRole(req, ["admin", "moderator", "reseller"]);
+  if (!auth.allowed) return res.status(403).json({ success: false, message: "No permission!" });
+
+  let keysToShow = [];
+  if (auth.user.role === "admin" || auth.user.role === "moderator") {
+    keysToShow = globalKeys;
+  } else {
+    keysToShow = auth.user.resellerKeys;
   }
 
   res.json({
     success: true,
-    points: panelPoints,
+    points: auth.user.role === "reseller" ? auth.user.resellerPoints : panelPoints,
     maintenanceMode: maintenanceMode,
-    generatedKeys: generatedKeys,
-    resellers: resellers
+    keys: keysToShow,
+    role: auth.user.role
   });
 });
 
-// 3. Toggle Maintenance Mode
+// 3. Toggle Maintenance Mode (Admin Only)
 app.post("/api/toggle-maintenance", (req, res) => {
-  if (!checkRole(req, ["admin"])) {
-    return res.status(403).json({ success: false, message: "Only Admin!" });
-  }
+  const auth = checkRole(req, ["admin"]);
+  if (!auth.allowed) return res.status(403).json({ success: false, message: "Only Admin!" });
 
   maintenanceMode = !maintenanceMode;
   res.json({ 
     success: true, 
     maintenanceMode,
-    message: maintenanceMode ? "Maintenance ON!" : "Maintenance OFF!" 
+    message: maintenanceMode ? "✅ Maintenance Mode ON!" : "❌ Maintenance Mode OFF!" 
   });
 });
 
-// 4. Generate New Key
+// 4. Generate Key (Match EREN UI Options)
 app.post("/api/generate-key", (req, res) => {
-  if (!checkRole(req, ["admin", "moderator"])) {
-    return res.status(403).json({ success: false, message: "No permission!" });
+  const auth = checkRole(req, ["admin", "moderator", "reseller"]);
+  if (!auth.allowed) return res.status(403).json({ success: false, message: "No permission!" });
+
+  const { keyType, duration, deviceSlot } = req.body;
+  let cost = 0;
+  let newKey = "";
+  let updatedPoints = 0;
+
+  // Calculate Cost (Match EREN's "1 Day (6 points)")
+  if (keyType === "VIP") {
+    cost = duration === "1 Day" ? 6 : duration === "7 Days" ? 30 : duration === "Lifetime" ? 100 : 6;
+  } else {
+    cost = duration === "1 Day" ? 3 : duration === "2 Days" ? 5 : 3;
   }
 
-  const { type, duration, devices } = req.body;
-  const newId = generatedKeys.length + 1;
-  const newKey = `KCV-${type}-${duration.replace(/\s/g, "")}-${Math.floor(Math.random() * 1000)}`;
+  // Check Points & Generate Key
+  if (auth.user.role === "reseller") {
+    if (auth.user.resellerPoints < cost) {
+      return res.status(400).json({ success: false, message: "Insufficient reseller points!" });
+    }
+    const newId = auth.user.resellerKeys.length + 1;
+    newKey = `KCV-RES-${keyType}-${duration.replace(/\s/g, "")}-${Math.floor(Math.random() * 9999)}`;
+    auth.user.resellerKeys.push({
+      id: newId,
+      key: newKey,
+      status: "active",
+      type: keyType,
+      expiry: duration,
+      user: "0/0",
+      devices: deviceSlot
+    });
+    auth.user.resellerPoints -= cost;
+    updatedPoints = auth.user.resellerPoints;
+  } else {
+    if (panelPoints < cost) {
+      return res.status(400).json({ success: false, message: "Insufficient panel points!" });
+    }
+    const newId = globalKeys.length + 1;
+    newKey = `KCV-GLB-${keyType}-${duration.replace(/\s/g, "")}-${Math.floor(Math.random() * 9999)}`;
+    globalKeys.push({
+      id: newId,
+      key: newKey,
+      status: "active",
+      type: keyType,
+      expiry: duration,
+      user: "0/0",
+      devices: deviceSlot
+    });
+    panelPoints -= cost;
+    updatedPoints = panelPoints;
+  }
 
-  generatedKeys.push({
-    id: newId,
-    key: newKey,
-    status: "active",
-    type: type,
-    expiry: duration,
-    user: "0/0",
-    devices: devices
-  });
-
-  // Bawasan points (kung kailangan)
-  if (type === "VIP") panelPoints -= 6; // Tulad ng "1 Day (6 points)" sa larawan
-  else panelPoints -= 3;
-
-  res.json({ success: true, newKey, updatedPoints: panelPoints });
+  res.json({ success: true, newKey, updatedPoints });
 });
 
-// 5. Create Reseller
+// 5. Create Reseller (Admin Only)
 app.post("/api/create-reseller", (req, res) => {
-  if (!checkRole(req, ["admin"])) {
-    return res.status(403).json({ success: false, message: "Only Admin!" });
-  }
+  const auth = checkRole(req, ["admin"]);
+  if (!auth.allowed) return res.status(403).json({ success: false, message: "Only Admin!" });
 
-  const { username, points } = req.body;
-  const newId = resellers.length + 1;
+  const { username, password, initialPoints } = req.body;
+  const newId = users.length + 1;
 
-  resellers.push({
+  users.push({
     id: newId,
     username: username,
-    points: points,
-    status: "active"
+    password: bcrypt.hashSync(password, 10),
+    role: "reseller",
+    resellerPoints: initialPoints || 100,
+    resellerKeys: []
   });
 
-  res.json({ success: true, message: "Reseller created!" });
+  res.json({ success: true, message: "✅ Reseller created successfully!" });
 });
 
-// 6. Serve Frontend
+// 6. Delete Key (Admin Only)
+app.post("/api/delete-key", (req, res) => {
+  const auth = checkRole(req, ["admin"]);
+  if (!auth.allowed) return res.status(403).json({ success: false, message: "Only Admin!" });
+
+  const { keyId } = req.body;
+  const keyIndex = globalKeys.findIndex(k => k.id === parseInt(keyId));
+  
+  if (keyIndex === -1) {
+    return res.status(404).json({ success: false, message: "Key not found!" });
+  }
+
+  globalKeys.splice(keyIndex, 1);
+  res.json({ success: true, message: "❌ Key deleted successfully!" });
+});
+
+// 7. Serve Frontend
 app.get("/", (req, res) => res.sendFile(path.join(__dirname, "index.html")));
 app.get("/dashboard", (req, res) => res.sendFile(path.join(__dirname, "dashboard.html")));
 
