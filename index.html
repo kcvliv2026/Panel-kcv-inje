@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KCV PANEL - LOGIN</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+    body { background: linear-gradient(#0a4a5c, #000); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 10px; }
+    .login-card { background: #000; padding: 30px; border-radius: 15px; width: 100%; max-width: 350px; box-shadow: 0 0 20px #00ffff; }
+    .title { color: #00ffff; text-align: center; margin-bottom: 20px; font-size: 24px; }
+    .status { color: #00ffff; margin-bottom: 15px; text-align: center; font-size: 16px; }
+    input { width: 100%; padding: 12px; margin: 8px 0; border: 2px solid #00ffff; border-radius: 8px; background: #111; color: #fff; font-size: 16px; outline: none; }
+    button { width: 100%; padding: 12px; background: #00ffff; color: #000; border: none; border-radius: 8px; font-size: 18px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+    button:hover { background: #00cccc; }
+    .error { color: #ff4444; text-align: center; margin-top: 10px; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div class="login-card">
+    <h1 class="title">⚡ KCV PANEL INJECTOR</h1>
+    <p class="status" id="status">Checking server...</p>
+    <input type="text" id="username" placeholder="Username" required>
+    <input type="password" id="password" placeholder="Password" required>
+    <input type="text" id="accessKey" placeholder="Access Key" required>
+    <button onclick="login()">LOGIN</button>
+    <p class="error" id="error"></p>
+  </div>
+
+  <script>
+    const VERCEL_URL = window.location.origin;
+
+    // Check Server Status
+    fetch(`${VERCEL_URL}/api/settings`, { method: "GET" })
+      .then(res => document.getElementById("status").textContent = "✅ Server Online!")
+      .catch(() => document.getElementById("status").textContent = "❌ Server Offline!");
+
+    // Login Function
+    function login() {
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const accessKey = document.getElementById("accessKey").value.trim();
+      const errorEl = document.getElementById("error");
+      errorEl.textContent = "";
+
+      if (!username || !password || !accessKey) {
+        errorEl.textContent = "Please fill all fields!";
+        return;
+      }
+
+      fetch(`${VERCEL_URL}/api/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password, accessKey })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          localStorage.setItem("kcv_token", data.token);
+          localStorage.setItem("kcv_user", data.username);
+          localStorage.setItem("kcv_role", data.role);
+          window.location.href = "/dashboard";
+        } else {
+          errorEl.textContent = data.message;
+        }
+      })
+      .catch(err => errorEl.textContent = "Connection error! Check your internet.");
+    }
+  </script>
+</body>
+</html>
