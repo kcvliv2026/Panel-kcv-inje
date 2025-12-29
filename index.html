@@ -1,133 +1,407 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fil">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KCV VIP PANEL - LOGIN</title>
+  <title>GARENA KCV VIP PANEL</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
     body { 
-      background: #121212; 
-      min-height: 100vh; 
-      display: flex; 
-      align-items: center; 
-      justify-content: center; 
-      padding: 10px; 
+      background: #0a0a12; 
+      color: #f5f5f5; 
+      transform-origin: top left;
+      transition: all 0.2s ease;
+      min-width: 100%;
+      overflow-x: hidden;
     }
-    .login-container { 
-      width: 100%; 
-      max-width: 400px; 
+
+    /* === ZOOM CONTROLS === */
+    .zoom-controls {
+      background: #151a30;
+      padding: 12px;
+      border-bottom: 3px solid #e62e4d;
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 10px rgba(230, 46, 77, 0.3);
+    }
+    .zoom-btn {
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 6px;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .zoom-btn:hover { 
+      background: #1d4ed8;
+      transform: translateY(-1px);
+    }
+    .zoom-label { 
+      font-size: 15px; 
+      color: #d1d5db; 
+      font-weight: 600; 
+    }
+    .zoom-label span { 
+      color: #3b82f6; 
+      font-size: 16px; 
+      text-shadow: 0 0 5px #3b82f6;
+    }
+
+    /* === TOP HEADER === */
+    .top-header {
+      background: #151a30;
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #e62e4d;
     }
     .panel-title { 
-      color: #00cc66; 
-      text-align: center; 
-      font-size: 32px; 
-      margin-bottom: 30px; 
-      text-shadow: 0 0 10px #00cc66; 
+      font-size: 24px; 
+      font-weight: 700; 
+      color: #e62e4d;
+      text-shadow: 0 0 6px rgba(230, 46, 77, 0.4);
     }
-    .login-card { 
-      background: #1e1e1e; 
-      padding: 30px; 
-      border-radius: 10px; 
-      box-shadow: 0 0 15px rgba(0, 204, 102, 0.5); 
-      border: 1px solid #00cc66;
-    }
-    .input-group { margin: 15px 0; }
-    label { 
-      color: #00cc66; 
-      display: block; 
-      margin-bottom: 5px; 
+    .points-display { 
       font-size: 16px; 
+      color: #d1d5db; 
     }
-    input { 
-      width: 100%; 
-      padding: 12px; 
-      background: #2a2a2a; 
-      border: 1px solid #00cc66; 
-      border-radius: 5px; 
+    .points-display span { 
+      color: #f59e0b; 
+      font-weight: 700; 
+      word-break: break-all;
+      text-shadow: 0 0 5px #f59e0b;
+    }
+    .logout-area {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+    .logout-btn { 
+      background: #e62e4d; 
       color: #fff; 
-      font-size: 16px; 
-      outline: none; 
-    }
-    .login-btn { 
-      width: 100%; 
-      padding: 12px; 
-      background: #00cc66; 
-      color: #000; 
       border: none; 
-      border-radius: 5px; 
-      font-size: 18px; 
-      font-weight: bold; 
-      cursor: pointer; 
-      margin-top: 10px; 
+      padding: 7px 12px; 
+      border-radius: 4px; 
+      cursor: pointer;
       transition: background 0.2s;
     }
-    .login-btn:hover { background: #00ff88; }
-    .status { 
-      color: #00cc66; 
-      text-align: center; 
-      margin-bottom: 10px; 
+    .logout-btn:hover { background: #c51632; }
+    .timer { 
+      font-size: 13px; 
+      color: #e62e4d; 
+      margin-top: 3px; 
+      font-weight: 600;
     }
-    .error { 
-      color: #ff3333; 
+
+    /* === CONTROL BAR === */
+    .control-bar {
+      background: #151a30;
+      padding: 15px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      border-bottom: 1px solid #e62e4d;
+      margin-bottom: 20px;
+    }
+    .control-bar select, .control-bar input {
+      background: #1f2937;
+      color: #f5f5f5;
+      border: 1px solid #2563eb;
+      padding: 7px 10px;
+      border-radius: 4px;
+      font-size: 14px;
+      outline: none;
+      transition: border 0.2s;
+    }
+    .control-bar select:focus, .control-bar input:focus {
+      border-color: #e62e4d;
+    }
+    .device-slot-input { width: 130px; }
+    .generate-key-btn {
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      padding: 7px 12px;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .generate-key-btn:hover { background: #1d4ed8; }
+    .main-btn {
+      background: #e62e4d;
+      color: #fff;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-right: 5px;
+      transition: background 0.2s;
+    }
+    .main-btn:hover { background: #c51632; }
+    .delete-section {
+      margin-left: auto;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .confirm-btn {
+      background: #dc2626;
+      color: #fff;
+      border: none;
+      padding: 7px 12px;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .confirm-btn:hover { background: #b91c1c; }
+
+    /* === RESELLER SECTION === */
+    .resellers-section {
+      background: #151a30;
+      margin: 0 20px 20px;
+      padding: 20px;
+      border-radius: 8px;
+      border: 1px solid #e62e4d;
+      box-shadow: 0 3px 15px rgba(0,0,0,0.4);
+    }
+    .resellers-section h2 { 
+      color: #e62e4d; 
+      margin-bottom: 15px; 
+      font-size: 20px; 
+      font-weight: 700;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .add-reseller-btn {
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .resellers-table { 
+      width: 100%; 
+      border-collapse: collapse; 
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .resellers-table th, .resellers-table td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #2d3748;
+      font-size: 14px;
+    }
+    .resellers-table th { 
+      background: #1f2937; 
+      color: #3b82f6; 
+      font-weight: 600;
+    }
+    .resellers-table tr:hover {
+      background: #1f2937;
+    }
+    .location-tag { 
+      color: #3b82f6; 
+      font-weight: 600; 
+    }
+
+    /* === KEYS TABLE === */
+    .keys-table-container { 
+      padding: 0 20px 20px; 
+      overflow-x: auto;
+    }
+    .keys-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #151a30;
+      min-width: 800px;
+      border-radius: 8px;
+      border: 1px solid #e62e4d;
+      overflow: hidden;
+      box-shadow: 0 3px 15px rgba(0,0,0,0.4);
+    }
+    .keys-table th, .keys-table td {
+      padding: 13px 15px;
+      text-align: left;
+      border-bottom: 1px solid #2d3748;
+      font-size: 14px;
+    }
+    .keys-table th { 
+      background: #1f2937; 
+      color: #3b82f6; 
+      font-weight: 600;
+    }
+    .keys-table tr:hover {
+      background: #1f2937;
+    }
+    .active-status { 
+      color: #10b981; 
+      font-weight: 600; 
+    }
+    .blocked-status {
+      color: #ef4444;
+      font-weight: 600;
+    }
+    .control-action-btn {
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .control-action-btn:hover { background: #1d4ed8; }
+    .block-btn {
+      background: #dc2626;
+    }
+    .block-btn:hover { background: #b91c1c; }
+
+    /* === ALERT === */
+    .alert {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 12px 25px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      display: none;
+      z-index: 200;
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; top: 0; }
+      to { opacity: 1; top: 20px; }
+    }
+    .alert-success { 
+      background: #064e3b; 
+      color: #10b981; 
+      border: 1px solid #10b981; 
+    }
+    .alert-error { 
+      background: #4b0000; 
+      color: #ef4444; 
+      border: 1px solid #ef4444; 
+    }
+
+    /* === MODALS === */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.9);
+      z-index: 300;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-content {
+      background: #151a30;
+      padding: 30px;
+      border-radius: 10px;
+      border: 2px solid #e62e4d;
+      width: 100%;
+      max-width: 450px;
+      box-shadow: 0 0 20px rgba(230, 46, 77, 0.5);
+    }
+    .modal-content h3 { 
+      color: #e62e4d; 
+      margin-bottom: 20px; 
       text-align: center; 
-      margin-top: 10px; 
+      font-size: 22px;
+    }
+    .modal-input-group { margin: 15px 0; }
+    .modal-input-group label {
+      display: block;
+      margin-bottom: 5px;
+      color: #d1d5db;
+      font-size: 14px;
+    }
+    .modal-input-group input, .modal-input-group select {
+      width: 100%;
+      background: #1f2937;
+      color: #fff;
+      border: 1px solid #2563eb;
+      padding: 8px 10px;
+      border-radius: 4px;
+      font-size: 15px;
+    }
+    .modal-close-btn {
+      background: #dc2626;
+      color: #fff;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 10px;
+      float: right;
+      transition: background 0.2s;
+    }
+    .modal-close-btn:hover { background: #b91c1c; }
+    .modal-action-btn {
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background 0.2s;
+    }
+    .modal-action-btn:hover { background: #1d4ed8; }
+
+    /* === FOOTER === */
+    .footer {
+      background: #151a30;
+      padding: 15px;
+      border-top: 2px solid #e62e4d;
+      text-align: center;
+      margin-top: 30px;
+    }
+    .footer-text {
+      font-size: 16px;
+      font-weight: 700;
+      color: #3b82f6;
+      text-shadow: 0 0 5px #3b82f6;
+    }
+    .footer-text span {
+      color: #e62e4d;
+      text-shadow: 0 0 5px #e62e4d;
     }
   </style>
 </head>
-<body>
-  <div class="login-container">
-    <h1 class="panel-title">KCV VIP PANEL</h1>
-    <div class="login-card">
-      <p class="status" id="status">✅ Server Online</p>
-      <div class="input-group">
-        <label>Username</label>
-        <input type="text" id="username" placeholder="Enter username" required>
-      </div>
-      <div class="input-group">
-        <label>Password</label>
-        <input type="password" id="password" placeholder="Enter password" required>
-      </div>
-      <button class="login-btn" onclick="login()">LOGIN</button>
-      <p class="error" id="error"></p>
-    </div>
+<body id="panel-body">
+  <!-- ZOOM CONTROLS -->
+  <div class="zoom-controls">
+    <button class="zoom-btn" onclick="adjustZoom(-0.1)">🔍 Zoom Out (-10%)</button>
+    <span class="zoom-label">Zoom Level: <span id="zoom-level">100%</span></span>
+    <button class="zoom-btn" onclick="adjustZoom(0.1)">🔍 Zoom In (+10%)</button>
+    <button class="zoom-btn" onclick="resetZoom()">🔄 Reset to 100%</button>
   </div>
 
-  <script>
-    const VERCEL_URL = window.location.origin;
-
-    // Login Function
-    function login() {
-      const username = document.getElementById("username").value.trim();
-      const password = document.getElementById("password").value.trim();
-      const errorEl = document.getElementById("error");
-      errorEl.textContent = "";
-
-      if (!username || !password) {
-        errorEl.textContent = "Fill all fields!";
-        return;
-      }
-
-      fetch(`${VERCEL_URL}/api/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password })
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          localStorage.setItem("kcv_token", data.token);
-          localStorage.setItem("kcv_user", data.username);
-          localStorage.setItem("kcv_role", data.role);
-          localStorage.setItem("kcv_points", data.points);
-          localStorage.setItem("kcv_session_start", Date.now());
-          window.location.href = "/dashboard";
-        } else {
-          errorEl.textContent = data.message;
-        }
-      })
-      .catch(() => errorEl.textContent = "Connection error! Check server.");
-    }
-  </script>
-</body>
-</html>
+  <!-- TOP HEADER -->
+  <div class="top-header">
+    <div>
+      <h1 class="panel-title">GARENA KCV VIP PANEL</h1>
+      <p class="points-display">Total Saldo: <span id="total-points">9999999999999999</span></p>
+    </div>
+    <div class="logout-area">
+      <button class="logout-btn" onclick="logout()">Logout</button>
+      <p class="timer" id="session-timer">120:00</p>
