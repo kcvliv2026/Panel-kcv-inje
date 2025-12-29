@@ -6,24 +6,80 @@
   <title>KCV VIP PANEL - LOGIN</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
-    body { background: #000; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 10px; }
-    .login-container { width: 100%; max-width: 400px; }
-    .panel-title { color: #fff; text-align: center; font-size: 32px; margin-bottom: 30px; text-shadow: 0 0 10px #00cc66; }
-    .login-card { background: #0a0a0a; padding: 30px; border-radius: 10px; box-shadow: 0 0 15px #00cc66; }
+    body { 
+      background: #121212; 
+      min-height: 100vh; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      padding: 10px; 
+    }
+    .login-container { 
+      width: 100%; 
+      max-width: 400px; 
+    }
+    .panel-title { 
+      color: #00cc66; 
+      text-align: center; 
+      font-size: 32px; 
+      margin-bottom: 30px; 
+      text-shadow: 0 0 10px #00cc66; 
+    }
+    .login-card { 
+      background: #1e1e1e; 
+      padding: 30px; 
+      border-radius: 10px; 
+      box-shadow: 0 0 15px rgba(0, 204, 102, 0.5); 
+      border: 1px solid #00cc66;
+    }
     .input-group { margin: 15px 0; }
-    label { color: #00cc66; display: block; margin-bottom: 5px; font-size: 16px; }
-    input { width: 100%; padding: 12px; background: #1a1a1a; border: 1px solid #00cc66; border-radius: 5px; color: #fff; font-size: 16px; outline: none; }
-    .login-btn { width: 100%; padding: 12px; background: #00cc66; color: #000; border: none; border-radius: 5px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+    label { 
+      color: #00cc66; 
+      display: block; 
+      margin-bottom: 5px; 
+      font-size: 16px; 
+    }
+    input { 
+      width: 100%; 
+      padding: 12px; 
+      background: #2a2a2a; 
+      border: 1px solid #00cc66; 
+      border-radius: 5px; 
+      color: #fff; 
+      font-size: 16px; 
+      outline: none; 
+    }
+    .login-btn { 
+      width: 100%; 
+      padding: 12px; 
+      background: #00cc66; 
+      color: #000; 
+      border: none; 
+      border-radius: 5px; 
+      font-size: 18px; 
+      font-weight: bold; 
+      cursor: pointer; 
+      margin-top: 10px; 
+      transition: background 0.2s;
+    }
     .login-btn:hover { background: #00ff88; }
-    .status { color: #00cc66; text-align: center; margin-bottom: 10px; }
-    .error { color: #ff3333; text-align: center; margin-top: 10px; }
+    .status { 
+      color: #00cc66; 
+      text-align: center; 
+      margin-bottom: 10px; 
+    }
+    .error { 
+      color: #ff3333; 
+      text-align: center; 
+      margin-top: 10px; 
+    }
   </style>
 </head>
 <body>
   <div class="login-container">
     <h1 class="panel-title">KCV VIP PANEL</h1>
     <div class="login-card">
-      <p class="status" id="status">Checking server...</p>
+      <p class="status" id="status">✅ Server Online</p>
       <div class="input-group">
         <label>Username</label>
         <input type="text" id="username" placeholder="Enter username" required>
@@ -39,11 +95,6 @@
 
   <script>
     const VERCEL_URL = window.location.origin;
-
-    // Check Server
-    fetch(`${VERCEL_URL}/api/panel-data`, { method: "GET" })
-      .then(res => document.getElementById("status").textContent = "✅ Server Online")
-      .catch(() => document.getElementById("status").textContent = "❌ Server Offline");
 
     // Login Function
     function login() {
@@ -69,12 +120,13 @@
           localStorage.setItem("kcv_user", data.username);
           localStorage.setItem("kcv_role", data.role);
           localStorage.setItem("kcv_points", data.points);
+          localStorage.setItem("kcv_session_start", Date.now());
           window.location.href = "/dashboard";
         } else {
           errorEl.textContent = data.message;
         }
       })
-      .catch(() => errorEl.textContent = "Connection error!");
+      .catch(() => errorEl.textContent = "Connection error! Check server.");
     }
   </script>
 </body>

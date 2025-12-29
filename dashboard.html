@@ -6,21 +6,53 @@
   <title>KCV VIP PANEL</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
-    body { background: #000; color: #fff; }
+    body { 
+      background: #121212; 
+      color: #fff; 
+      transform-origin: top left;
+      transition: transform 0.2s ease;
+    }
+
+    /* ZOOM CONTROLS */
+    .zoom-controls {
+      background: #1e1e1e;
+      padding: 10px 15px;
+      border-bottom: 1px solid #00cc66;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .zoom-btn {
+      background: #0066ff;
+      color: #fff;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 3px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .zoom-label {
+      font-size: 14px;
+      color: #ccc;
+    }
+    .zoom-label span {
+      color: #00cc66;
+      font-weight: bold;
+    }
 
     /* TOP HEADER */
     .top-header {
-      background: #0a0a0a;
+      background: #1e1e1e;
       padding: 10px 15px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 1px solid #222;
+      border-bottom: 1px solid #00cc66;
     }
     .panel-title {
       font-size: 20px;
       font-weight: bold;
-      color: #fff;
+      color: #00cc66;
     }
     .points-display {
       font-size: 16px;
@@ -29,6 +61,7 @@
     .points-display span {
       color: #ffcc00;
       font-weight: bold;
+      word-break: break-all;
     }
     .logout-area {
       text-align: right;
@@ -50,22 +83,25 @@
 
     /* CONTROL BAR */
     .control-bar {
-      background: #0a0a0a;
+      background: #1e1e1e;
       padding: 15px;
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
       align-items: center;
-      border-bottom: 1px solid #222;
+      border-bottom: 1px solid #00cc66;
     }
-    .control-bar select {
-      background: #1a1a1a;
+    .control-bar select, .control-bar input {
+      background: #2a2a2a;
       color: #fff;
-      border: 1px solid #333;
+      border: 1px solid #00cc66;
       padding: 6px 8px;
       border-radius: 3px;
       font-size: 14px;
       outline: none;
+    }
+    .device-slot-input {
+      width: 120px;
     }
     .generate-key-btn {
       background: #0066ff;
@@ -103,23 +139,59 @@
       cursor: pointer;
     }
 
+    /* RESELLER SECTION */
+    .resellers-section {
+      background: #1e1e1e;
+      margin: 15px;
+      padding: 15px;
+      border-radius: 5px;
+      border: 1px solid #00cc66;
+    }
+    .resellers-section h2 {
+      color: #00cc66;
+      margin-bottom: 10px;
+      font-size: 18px;
+    }
+    .resellers-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .resellers-table th, .resellers-table td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid #333;
+      font-size: 14px;
+    }
+    .resellers-table th {
+      background: #2a2a2a;
+      color: #00cc66;
+    }
+    .location-tag {
+      color: #0099ff;
+      font-weight: bold;
+    }
+
     /* KEYS TABLE */
     .keys-table-container {
       padding: 15px;
+      overflow-x: auto;
     }
     .keys-table {
       width: 100%;
       border-collapse: collapse;
-      background: #0a0a0a;
+      background: #1e1e1e;
+      min-width: 800px;
+      border: 1px solid #00cc66;
+      border-radius: 5px;
     }
     .keys-table th, .keys-table td {
       padding: 12px 10px;
       text-align: left;
-      border-bottom: 1px solid #222;
+      border-bottom: 1px solid #333;
       font-size: 14px;
     }
     .keys-table th {
-      background: #1a1a1a;
+      background: #2a2a2a;
       color: #00cc66;
       font-weight: bold;
     }
@@ -137,57 +209,7 @@
       cursor: pointer;
     }
 
-    /* MODALS */
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.8);
-      align-items: center;
-      justify-content: center;
-      z-index: 100;
-    }
-    .modal-content {
-      background: #1a1a1a;
-      padding: 25px;
-      border-radius: 5px;
-      width: 90%;
-      max-width: 350px;
-    }
-    .modal-content h3 {
-      color: #00cc66;
-      margin-bottom: 15px;
-      text-align: center;
-    }
-    .modal-content input {
-      width: 100%;
-      padding: 8px;
-      margin: 8px 0;
-      background: #2a2a2a;
-      border: 1px solid #333;
-      color: #fff;
-      border-radius: 3px;
-      outline: none;
-    }
-    .modal-buttons {
-      display: flex;
-      gap: 10px;
-      justify-content: flex-end;
-      margin-top: 20px;
-    }
-    .close-modal-btn {
-      background: #666;
-      color: #fff;
-      border: none;
-      padding: 6px 12px;
-      border-radius: 3px;
-      cursor: pointer;
-    }
-
-    /* MESSAGE ALERT */
+    /* ALERT */
     .alert {
       position: fixed;
       top: 20px;
@@ -203,23 +225,33 @@
     .alert-success {
       background: #004422;
       color: #00cc66;
+      border: 1px solid #00cc66;
     }
     .alert-error {
       background: #440000;
       color: #ff3333;
+      border: 1px solid #ff3333;
     }
   </style>
 </head>
-<body>
+<body id="panel-body">
+  <!-- ZOOM CONTROLS -->
+  <div class="zoom-controls">
+    <button class="zoom-btn" onclick="adjustZoom(-0.1)">🔍 Zoom Out (-)</button>
+    <span class="zoom-label">Zoom Level: <span id="zoom-level">100%</span></span>
+    <button class="zoom-btn" onclick="adjustZoom(0.1)">🔍 Zoom In (+)</button>
+    <button class="zoom-btn" onclick="resetZoom()">🔄 Reset Zoom</button>
+  </div>
+
   <!-- TOP HEADER -->
   <div class="top-header">
     <div>
       <h1 class="panel-title">KCV VIP PANEL</h1>
-      <p class="points-display">Points: <span id="total-points">99989</span></p>
+      <p class="points-display">Total Saldo: <span id="total-points">9999999999999999</span></p>
     </div>
     <div class="logout-area">
       <button class="logout-btn" onclick="logout()">Logout</button>
-      <p class="timer">60:00</p>
+      <p class="timer" id="session-timer">120:00</p>
     </div>
   </div>
 
@@ -230,25 +262,18 @@
       <option value="Free">Free</option>
     </select>
     <select id="duration">
-      <option value="1 Day">1 Day (6 points)</option>
-      <option value="7 Days">7 Days (30 points)</option>
-      <option value="Lifetime">Lifetime (100 points)</option>
-      <option value="2 Days">2 Days (5 points)</option>
+      <option value="1 Day">1 Day (6 saldo)</option>
+      <option value="7 Days">7 Days (30 saldo)</option>
+      <option value="Lifetime">Lifetime (100 saldo)</option>
+      <option value="2 Days">2 Days (5 saldo)</option>
     </select>
-    <select id="device-slot">
-      <option value="1">1</option>
-      <option value="2">2</option>
-      <option value="3">3</option>
-    </select>
+    <input type="number" id="device-slot" class="device-slot-input" placeholder="Device Slot" min="1" max="9999999" value="1" required>
     <button class="generate-key-btn" onclick="generateKey()">Generate Key</button>
 
-    <!-- MAIN BUTTONS (Gaya ng EREN UI) -->
-    <button class="main-btn" onclick="openResellerModal()">Create Reseller</button>
     <button class="main-btn" onclick="toggleMaintenance()">Maintenance Mode</button>
-    <button class="main-btn">Get Key Generate</button>
-    <button class="main-btn">Control Website</button>
+    <button class="main-btn" onclick="getKeyLogs()">Get Key Logs</button>
+    <button class="main-btn" onclick="openWebsiteControl()">Control Website</button>
 
-    <!-- DELETE SECTION -->
     <div class="delete-section">
       <select id="delete-key-select">
         <option value="">Select Key to Delete</option>
@@ -257,211 +282,30 @@
     </div>
   </div>
 
+  <!-- RESELLER LOCATION SECTION -->
+  <div class="resellers-section">
+    <h2>🔍 Reseller Locations & Details</h2>
+    <table class="resellers-table">
+      <thead>
+        <tr>
+          <th>Reseller ID</th>
+          <th>Username</th>
+          <th>Reseller Points</th>
+          <th>Location</th>
+          <th>Date Created</th>
+        </tr>
+      </thead>
+      <tbody id="resellers-table-body">
+        <tr>
+          <td colspan="5" style="text-align:center; color:#ccc;">Loading resellers...</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
   <!-- KEYS TABLE -->
   <div class="keys-table-container">
     <table class="keys-table">
       <thead>
         <tr>
-          <th>ID</th>
-          <th>Key</th>
-          <th>Status</th>
-          <th>Type</th>
-          <th>Expiry</th>
-          <th>User</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="keys-table-body">
-        <!-- WALANG PRE-SET KEYS - MABUBUO LANG KAPAG NAG-GENERATE KA -->
-      </tbody>
-    </table>
-  </div>
-
-  <!-- CREATE RESELLER MODAL -->
-  <div class="modal" id="reseller-modal">
-    <div class="modal-content">
-      <h3>Create Reseller</h3>
-      <input type="text" id="reseller-username" placeholder="Reseller Username">
-      <input type="password" id="reseller-password" placeholder="Reseller Password">
-      <input type="number" id="reseller-points" placeholder="Initial Points" min="100">
-      <div class="modal-buttons">
-        <button class="close-modal-btn" onclick="closeResellerModal()">Cancel</button>
-        <button class="main-btn" onclick="saveReseller()">Create</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ALERT MESSAGE -->
-  <div class="alert" id="alert-box"></div>
-
-  <script>
-    const VERCEL_URL = window.location.origin;
-    const token = localStorage.getItem("kcv_token");
-    const role = localStorage.getItem("kcv_role");
-    let currentPoints = localStorage.getItem("kcv_points");
-
-    // CHECK IF LOGGED IN
-    if (!token) {
-      window.location.href = "/";
-    } else {
-      document.getElementById("total-points").textContent = currentPoints;
-      loadPanelData();
-      hideButtonsByRole();
-    }
-
-    // LOAD PANEL DATA
-    function loadPanelData() {
-      fetch(`${VERCEL_URL}/api/panel-data`, {
-        headers: { "Authorization": `Bearer ${token}` }
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          currentPoints = data.points;
-          document.getElementById("total-points").textContent = currentPoints;
-          updateKeysTable(data.keys);
-          updateDeleteDropdown(data.keys);
-        } else {
-          showAlert(data.message, "error");
-        }
-      })
-      .catch(() => showAlert("Connection error!", "error"));
-    }
-
-    // UPDATE KEYS TABLE
-    function updateKeysTable(keys) {
-      const tableBody = document.getElementById("keys-table-body");
-      tableBody.innerHTML = "";
-
-      if (keys.length === 0) {
-        const emptyRow = document.createElement("tr");
-        emptyRow.innerHTML = `<td colspan="7" style="text-align:center; color:#ccc;">No keys generated yet!</td>`;
-        tableBody.appendChild(emptyRow);
-        return;
-      }
-
-      keys.forEach(key => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-          <td>${key.id}</td>
-          <td>${key.key}</td>
-          <td class="active-status">${key.status}</td>
-          <td>${key.type}</td>
-          <td>${key.expiry}</td>
-          <td>${key.user}</td>
-          <td><button class="control-action-btn">Control</button></td>
-        `;
-        tableBody.appendChild(row);
-      });
-    }
-
-    // UPDATE DELETE DROPDOWN
-    function updateDeleteDropdown(keys) {
-      const dropdown = document.getElementById("delete-key-select");
-      dropdown.innerHTML = `<option value="">Select Key to Delete</option>`;
-
-      keys.forEach(key => {
-        const option = document.createElement("option");
-        option.value = key.id;
-        option.textContent = key.key;
-        dropdown.appendChild(option);
-      });
-    }
-
-    // HIDE BUTTONS BASED ON ROLE
-    function hideButtonsByRole() {
-      if (role !== "admin") {
-        document.querySelector(".delete-section").style.display = "none";
-        document.querySelector("button[onclick='openResellerModal()']").style.display = "none";
-        document.querySelector("button[onclick='toggleMaintenance()']").style.display = "none";
-      }
-    }
-
-    // GENERATE KEY
-    function generateKey() {
-      const keyType = document.getElementById("key-type").value;
-      const duration = document.getElementById("duration").value;
-      const deviceSlot = document.getElementById("device-slot").value;
-
-      fetch(`${VERCEL_URL}/api/generate-key`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify({ keyType, duration, deviceSlot })
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          showAlert(`Key generated: ${data.newKey}`, "success");
-          currentPoints = data.updatedPoints;
-          document.getElementById("total-points").textContent = currentPoints;
-          loadPanelData();
-        } else {
-          showAlert(data.message, "error");
-        }
-      });
-    }
-
-    // TOGGLE MAINTENANCE
-    function toggleMaintenance() {
-      fetch(`${VERCEL_URL}/api/toggle-maintenance`, {
-        method: "POST",
-        headers: { "Authorization": `Bearer ${token}` }
-      })
-      .then(res => res.json())
-      .then(data => {
-        showAlert(data.message, "success");
-      });
-    }
-
-    // RESELLER MODAL FUNCTIONS
-    function openResellerModal() {
-      document.getElementById("reseller-modal").style.display = "flex";
-    }
-    function closeResellerModal() {
-      document.getElementById("reseller-modal").style.display = "none";
-    }
-    function saveReseller() {
-      const username = document.getElementById("reseller-username").value.trim();
-      const password = document.getElementById("reseller-password").value.trim();
-      const points = document.getElementById("reseller-points").value.trim();
-
-      if (!username || !password || !points) {
-        showAlert("Fill all fields!", "error");
-        return;
-      }
-
-      fetch(`${VERCEL_URL}/api/create-reseller`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify({ username, password, initialPoints: parseInt(points) })
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          showAlert(data.message, "success");
-          closeResellerModal();
-        } else {
-          showAlert(data.message, "error");
-        }
-      });
-    }
-
-    // DELETE KEY
-    function deleteKey() {
-      const keyId = document.getElementById("delete-key-select").value;
-      if (!keyId) {
-        showAlert("Select a key first!", "error");
-        return;
-      }
-
-      fetch(`${VERCEL_URL}/api/delete-key`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-         
+          
