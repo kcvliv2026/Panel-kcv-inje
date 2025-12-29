@@ -8,15 +8,15 @@
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
     body { background: #000; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 10px; }
     .login-container { width: 100%; max-width: 400px; }
-    .panel-title { color: #fff; text-align: center; font-size: 32px; margin-bottom: 30px; text-shadow: 0 0 10px #00ffcc; }
-    .login-card { background: #111; padding: 30px; border-radius: 10px; box-shadow: 0 0 15px #00ffcc; }
+    .panel-title { color: #fff; text-align: center; font-size: 32px; margin-bottom: 30px; text-shadow: 0 0 10px #00cc66; }
+    .login-card { background: #0a0a0a; padding: 30px; border-radius: 10px; box-shadow: 0 0 15px #00cc66; }
     .input-group { margin: 15px 0; }
-    label { color: #00ffcc; display: block; margin-bottom: 5px; font-size: 16px; }
-    input { width: 100%; padding: 12px; background: #222; border: 1px solid #00ffcc; border-radius: 5px; color: #fff; font-size: 16px; outline: none; }
-    .login-btn { width: 100%; padding: 12px; background: #00cc99; color: #000; border: none; border-radius: 5px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-    .login-btn:hover { background: #00ffcc; }
-    .status { color: #00ffcc; text-align: center; margin-bottom: 10px; }
-    .error { color: #ff4444; text-align: center; margin-top: 10px; }
+    label { color: #00cc66; display: block; margin-bottom: 5px; font-size: 16px; }
+    input { width: 100%; padding: 12px; background: #1a1a1a; border: 1px solid #00cc66; border-radius: 5px; color: #fff; font-size: 16px; outline: none; }
+    .login-btn { width: 100%; padding: 12px; background: #00cc66; color: #000; border: none; border-radius: 5px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+    .login-btn:hover { background: #00ff88; }
+    .status { color: #00cc66; text-align: center; margin-bottom: 10px; }
+    .error { color: #ff3333; text-align: center; margin-top: 10px; }
   </style>
 </head>
 <body>
@@ -32,10 +32,6 @@
         <label>Password</label>
         <input type="password" id="password" placeholder="Enter password" required>
       </div>
-      <div class="input-group">
-        <label>Access Key</label>
-        <input type="text" id="accessKey" placeholder="Enter access key" required>
-      </div>
       <button class="login-btn" onclick="login()">LOGIN</button>
       <p class="error" id="error"></p>
     </div>
@@ -44,7 +40,7 @@
   <script>
     const VERCEL_URL = window.location.origin;
 
-    // Check Server Status
+    // Check Server
     fetch(`${VERCEL_URL}/api/panel-data`, { method: "GET" })
       .then(res => document.getElementById("status").textContent = "✅ Server Online")
       .catch(() => document.getElementById("status").textContent = "❌ Server Offline");
@@ -53,11 +49,10 @@
     function login() {
       const username = document.getElementById("username").value.trim();
       const password = document.getElementById("password").value.trim();
-      const accessKey = document.getElementById("accessKey").value.trim();
       const errorEl = document.getElementById("error");
       errorEl.textContent = "";
 
-      if (!username || !password || !accessKey) {
+      if (!username || !password) {
         errorEl.textContent = "Fill all fields!";
         return;
       }
@@ -65,13 +60,14 @@
       fetch(`${VERCEL_URL}/api/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password, accessKey })
+        body: JSON.stringify({ username, password })
       })
       .then(res => res.json())
       .then(data => {
         if (data.success) {
           localStorage.setItem("kcv_token", data.token);
           localStorage.setItem("kcv_user", data.username);
+          localStorage.setItem("kcv_role", data.role);
           localStorage.setItem("kcv_points", data.points);
           window.location.href = "/dashboard";
         } else {

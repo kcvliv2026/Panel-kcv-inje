@@ -10,7 +10,7 @@ const JWT_SECRET = "KCV_SECRET_KEY_2025";
 let maintenanceMode = false;
 let panelPoints = 99989;
 
-// ==== USERS WITH ROLES ====
+// ==== USERS - WALANG ACCESS KEY! ====
 const users = [
   {
     id: 1,
@@ -35,15 +35,15 @@ const users = [
 ];
 
 // ==== KEY LISTS - WALANG PRE-SET KEYS! ====
-const globalKeys = []; // Admin/Moderator Keys
-const resellerKeys = []; // Reseller Keys
+const globalKeys = [];
+
 
 // Basic Setup
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, ".")));
 
-// ==== HELPER FUNCTION: CHECK ROLE ====
+// ==== HELPER: CHECK ROLE ====
 function checkRole(req, allowedRoles) {
   try {
     const token = req.headers.authorization.split(" ")[1];
@@ -56,7 +56,7 @@ function checkRole(req, allowedRoles) {
 }
 
 // ==== API ROUTES ====
-// 1. Login Route
+// 1. LOGIN - USERNAME AT PASSWORD LANG!
 app.post("/api/login", (req, res) => {
   if (maintenanceMode && req.body.username !== "kcv_admin") {
     return res.status(503).json({ success: false, message: "Panel under maintenance!" });
@@ -82,7 +82,7 @@ app.post("/api/login", (req, res) => {
   });
 });
 
-// 2. Get Panel Data (Match EREN UI Structure)
+// 2. GET PANEL DATA
 app.get("/api/panel-data", (req, res) => {
   const auth = checkRole(req, ["admin", "moderator", "reseller"]);
   if (!auth.allowed) return res.status(403).json({ success: false, message: "No permission!" });
@@ -103,7 +103,7 @@ app.get("/api/panel-data", (req, res) => {
   });
 });
 
-// 3. Toggle Maintenance Mode (Admin Only)
+// 3. TOGGLE MAINTENANCE MODE
 app.post("/api/toggle-maintenance", (req, res) => {
   const auth = checkRole(req, ["admin"]);
   if (!auth.allowed) return res.status(403).json({ success: false, message: "Only Admin!" });
@@ -112,11 +112,11 @@ app.post("/api/toggle-maintenance", (req, res) => {
   res.json({ 
     success: true, 
     maintenanceMode,
-    message: maintenanceMode ? "✅ Maintenance Mode ON!" : "❌ Maintenance Mode OFF!" 
+    message: maintenanceMode ? "✅ Maintenance ON!" : "❌ Maintenance OFF!" 
   });
 });
 
-// 4. Generate Key (Match EREN UI Options)
+// 4. GENERATE KEY
 app.post("/api/generate-key", (req, res) => {
   const auth = checkRole(req, ["admin", "moderator", "reseller"]);
   if (!auth.allowed) return res.status(403).json({ success: false, message: "No permission!" });
@@ -126,17 +126,15 @@ app.post("/api/generate-key", (req, res) => {
   let newKey = "";
   let updatedPoints = 0;
 
-  // Calculate Cost (Match EREN's "1 Day (6 points)")
   if (keyType === "VIP") {
-    cost = duration === "1 Day" ? 6 : duration === "7 Days" ? 30 : duration === "Lifetime" ? 100 : 6;
+    cost = duration === "1 Day" ? 6 : duration === "7 Days" ? 30 : 100;
   } else {
     cost = duration === "1 Day" ? 3 : duration === "2 Days" ? 5 : 3;
   }
 
-  // Check Points & Generate Key
   if (auth.user.role === "reseller") {
     if (auth.user.resellerPoints < cost) {
-      return res.status(400).json({ success: false, message: "Insufficient reseller points!" });
+      return res.status(400).json({ success: false, message: "Insufficient points!" });
     }
     const newId = auth.user.resellerKeys.length + 1;
     newKey = `KCV-RES-${keyType}-${duration.replace(/\s/g, "")}-${Math.floor(Math.random() * 9999)}`;
@@ -153,7 +151,7 @@ app.post("/api/generate-key", (req, res) => {
     updatedPoints = auth.user.resellerPoints;
   } else {
     if (panelPoints < cost) {
-      return res.status(400).json({ success: false, message: "Insufficient panel points!" });
+      return res.status(400).json({ success: false, message: "Insufficient points!" });
     }
     const newId = globalKeys.length + 1;
     newKey = `KCV-GLB-${keyType}-${duration.replace(/\s/g, "")}-${Math.floor(Math.random() * 9999)}`;
@@ -173,7 +171,7 @@ app.post("/api/generate-key", (req, res) => {
   res.json({ success: true, newKey, updatedPoints });
 });
 
-// 5. Create Reseller (Admin Only)
+// 5. CREATE RESELLER
 app.post("/api/create-reseller", (req, res) => {
   const auth = checkRole(req, ["admin"]);
   if (!auth.allowed) return res.status(403).json({ success: false, message: "Only Admin!" });
@@ -190,10 +188,10 @@ app.post("/api/create-reseller", (req, res) => {
     resellerKeys: []
   });
 
-  res.json({ success: true, message: "✅ Reseller created successfully!" });
+  res.json({ success: true, message: "✅ Reseller created!" });
 });
 
-// 6. Delete Key (Admin Only)
+// 6. DELETE KEY
 app.post("/api/delete-key", (req, res) => {
   const auth = checkRole(req, ["admin"]);
   if (!auth.allowed) return res.status(403).json({ success: false, message: "Only Admin!" });
@@ -206,12 +204,11 @@ app.post("/api/delete-key", (req, res) => {
   }
 
   globalKeys.splice(keyIndex, 1);
-  res.json({ success: true, message: "❌ Key deleted successfully!" });
+  res.json({ success: true, message: "❌ Key deleted!" });
 });
 
-// 7. Serve Frontend
+// 7. SERVE FRONTEND
 app.get("/", (req, res) => res.sendFile(path.join(__dirname, "index.html")));
 app.get("/dashboard", (req, res) => res.sendFile(path.join(__dirname, "dashboard.html")));
 
-// Run Server
 app.listen(PORT, () => console.log("✅ KCV VIP PANEL ONLINE!"));
